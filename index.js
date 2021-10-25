@@ -1,3 +1,4 @@
+const fs = require('fs')
 const { Client, Intents } = require('discord.js')
 const { token } = require('./config.json')
 const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.js'))
