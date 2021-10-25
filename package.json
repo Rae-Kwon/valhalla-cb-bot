@@ -1,0 +1,22 @@
+{
+  "name": "valhalla-cb-bot",
+  "version": "1.0.0",
+  "description": "A discord bot for writing to the CB sheet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rae-Kwon/valhalla-cb-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rae-Kwon/valhalla-cb-bot/issues"
+  },
+  "homepage": "https://github.com/Rae-Kwon/valhalla-cb-bot#readme",
+  "dependencies": {
+    "discord.js": "^13.2.0"
+  }
+}
