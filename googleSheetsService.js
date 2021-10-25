@@ -1,36 +1,36 @@
 const { google } = require('googleapis')
-const sheets = google.sheets('v4')
-
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
+const auth = new google.auth.GoogleAuth({ scopes: SCOPES })
+const sheets = google.sheets('v4', auth)
+
 async function getAuthToken() {
-    const auth = new google.auth.GoogleAuth({
-        scopes: SCOPES
-    })
     const authToken = await auth.getClient()
     return authToken
 }
 
-async function getSpreadSheet({ spreadsheetId, auth }) {
-    const res = await sheets.spreadsheets.get({
+async function getSpreadSheetValues({ spreadsheetId, sheetName }) {
+    const res = await sheets.spreadsheets.values.get({
         spreadsheetId,
-        auth
+        auth,
+        range: `${sheetName}!A1:X35`,
     })
     return res
 }
 
-async function getSpreadSheetValues({ spreadsheetId, auth, sheetName }) {
-    const res = await sheets.spreadsheets.values.get({
+async function writeSpreadSheetValue({ spreadsheetId, sheetName, cell, resource }) {
+    const res = await sheets.spreadsheets.values.append({
         spreadsheetId,
         auth,
-        range: sheetName
+        range: `${sheetName}!${cell}`,
+        valueInputOption: 'USER_ENTERED',
+        resource
     })
-    return res
 }
 
 module.exports = {
     getAuthToken,
-    getSpreadSheet,
     getSpreadSheetValues,
+    writeSpreadSheetValue,
 }
 
