@@ -20,6 +20,7 @@
     "@discordjs/builders": "^0.6.0",
     "@discordjs/rest": "*",
     "discord-api-types": "^0.23.1",
-    "discord.js": "^13.2.0"
+    "discord.js": "^13.2.0",
+    "lodash": "^4.17.21"
   }
 }
