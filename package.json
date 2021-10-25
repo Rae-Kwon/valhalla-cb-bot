@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/Rae-Kwon/valhalla-cb-bot#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "*",
+    "discord-api-types": "^0.23.1",
     "discord.js": "^13.2.0"
   }
 }
