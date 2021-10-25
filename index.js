@@ -1,9 +1,9 @@
 const fs = require('fs')
 const { token } = require('./config.json')
-const { Client, Collection, Intents } = require('discord.js')
+const { Client, Intents } = require('discord.js')
 const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.js'))
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
 
 for (const file of eventFiles) {
     const event = require(`./events/${file}`)
