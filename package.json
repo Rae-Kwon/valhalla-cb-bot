@@ -21,7 +21,7 @@
     "@discordjs/rest": "*",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.2.0",
-    "googleapis": "^39.2.0",
+    "googleapis": "^89.0.0",
     "lodash": "^4.17.21"
   }
 }
