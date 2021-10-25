@@ -1,6 +1,9 @@
 const fs = require('fs')
+const { clientId, guildId, token } = require('./config.json')
+const { SlashCommandBuilder } = require('@discordjs/builders')
+const { REST } = require('@discordjs/rest')
+const { Routes } = require('discord-api-types/v9')
 const { Client, Intents } = require('discord.js')
-const { token } = require('./config.json')
 const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.js'))
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
