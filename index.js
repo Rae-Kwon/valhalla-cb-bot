@@ -21,9 +21,7 @@ async function main() {
                 if (event.name === 'messageCreate') {
                     args.forEach((message) => {
                         try {
-                            // Rayy#9837
-                            console.log(message.author.username)
-                            if (message.channel.name === 'attack-channel' && message.member.user.tag === 'MachuPichu#3535' && message.content.includes('CB')) {
+                            if (message.channel.name === 'attack-channel' && message.member.user.tag === 'Rayy#9837' && message.content.includes('CB')) {
                                 dupCbSheet(message.content)
                                 message.reply(`${message.content} Sheet created!`)
                             } else if (message.channel.name === 'attack-channel' && !message.author.bot && !(message.content.includes('CB'))) {
@@ -39,9 +37,7 @@ async function main() {
     
                                 for (let row = 0; row < sheetData.length; row++) {
                                     for (let col = 0; col < sheetData.length; col++) {
-                                        console.log(sheetData[row][col])
                                         if (sheetData[row][0].includes(message.member.displayName)) {
-                                            console.log(row)
                                             memberRow = row
                                         }
     
