@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const {
     getAuthToken,
     getSpreadSheetValues,
@@ -5,9 +7,7 @@ const {
     dupSheet,
 } = require("./googleSheetsService.js")
 
-const { sheetId } = require("./config.json")
-
-const spreadsheetId = sheetId
+const spreadsheetId = process.env.SHEET_ID
 let sheetName = 'CB Master'
 
 function getA1Notation(row, column) {
