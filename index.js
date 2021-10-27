@@ -1,9 +1,9 @@
+require('dotenv').config()
+
 const fs = require('fs')
-const string = require('lodash/string')
-const { token } = require('./config.json')
 const { Client, Intents } = require('discord.js')
 const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.js'))
-const { getUsername, getClanBattleData } = require('./discordFuncs')
+const { getClanBattleData } = require('./discordFuncs')
 const { getA1Notation, getValues, writeValue, dupCbSheet } = require('./googleSheetsFuncs')
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
@@ -70,4 +70,4 @@ async function main() {
 }
 
 main()
-client.login(token)
+client.login()
