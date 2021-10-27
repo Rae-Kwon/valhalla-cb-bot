@@ -2,23 +2,53 @@ const {
     getAuthToken,
     getSpreadSheetValues,
     writeSpreadSheetValue,
+    dupSheet,
 } = require("./googleSheetsService.js")
 
-const spreadsheetId = process.argv[2]
-const sheetName = process.argv[3]
+const { sheetId } = require("./config.json")
+
+const spreadsheetId = sheetId
+let sheetName = 'CB Master'
 
 function getA1Notation(row, column) {
     const a1Notation = [`${row + 1}`]
-    const totalAlphabets = "Z".charCodeAt() - "A".charCodeAt() + 1
+    const totalAlphabets =
+        "Z".charCodeAt() - "A".charCodeAt() + 1
     let block = column
     while (block >= 0) {
         a1Notation.unshift(
-            String.fromCharCode((block % totalAlphabets) + "A".charCodeAt())
+            String.fromCharCode(
+                (block % totalAlphabets) + "A".charCodeAt()
+            )
         )
         block = Math.floor(block / totalAlphabets) - 1
     }
 
     return a1Notation.join("")
+}
+
+async function dupCbSheet(newSheetName) {
+    try {
+        sheetName = newSheetName
+        const auth = await getAuthToken()
+        const request = await dupSheet({
+            spreadsheetId,
+            resource: {
+                requests: [
+                    {
+                        duplicateSheet: {
+                            sourceSheetId: 1907649886,
+                            insertSheetIndex: 2,
+                            newSheetName,
+                        },
+                    },
+                ],
+            },
+            auth,
+        })
+    } catch (error) {
+        console.log("Error duplicating sheet")
+    }
 }
 
 async function getValues() {
@@ -29,10 +59,15 @@ async function getValues() {
             auth,
             sheetName,
         })
-        const sheetData = JSON.parse(JSON.stringify(response.data, null, 2))
+        const sheetData = JSON.parse(
+            JSON.stringify(response.data, null, 2)
+        )
         return sheetData
     } catch (error) {
-        console.log(`Error getting ${sheetName}`, error.message)
+        console.log(
+            `Error getting ${sheetName}`,
+            error.message
+        )
     }
 }
 
@@ -48,12 +83,16 @@ async function writeValue(cell, resource) {
         })
         console.log(request)
     } catch (error) {
-        console.log(`Error updating ${sheetName}`, error.message)
+        console.log(
+            `Error updating ${sheetName}`,
+            error.message
+        )
     }
 }
 
 module.exports = {
     getA1Notation,
     getValues,
-    writeValue
+    writeValue,
+    dupCbSheet,
 }

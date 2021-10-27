@@ -9,6 +9,14 @@ async function getAuthToken() {
     return authToken
 }
 
+async function dupSheet({ spreadsheetId, auth, resource }) {
+    const req = await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        resource,
+        auth
+    })
+}
+
 async function getSpreadSheetValues({ spreadsheetId, sheetName }) {
     const res = await sheets.spreadsheets.values.get({
         spreadsheetId,
@@ -30,6 +38,7 @@ async function writeSpreadSheetValue({ spreadsheetId, sheetName, cell, resource 
 
 module.exports = {
     getAuthToken,
+    dupSheet,
     getSpreadSheetValues,
     writeSpreadSheetValue,
 }
