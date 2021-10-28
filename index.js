@@ -86,4 +86,4 @@ async function main() {
 }
 
 main()
-client.login()
+client.login(process.env.DISCORD_TOKEN)
