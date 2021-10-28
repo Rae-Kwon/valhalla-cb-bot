@@ -17,6 +17,16 @@ async function dupSheet({ spreadsheetId, auth, resource }) {
     })
 }
 
+async function updateSheet({ spreadsheetId, sheetName, cell, resource }) {
+    const req = await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        auth,
+        range: `${sheetName}!${cell}`,
+        valueInputOption: 'USER_ENTERED',
+        resource
+    })
+}
+
 async function getSpreadSheetValues({ spreadsheetId, sheetName }) {
     const res = await sheets.spreadsheets.values.get({
         spreadsheetId,
@@ -26,20 +36,10 @@ async function getSpreadSheetValues({ spreadsheetId, sheetName }) {
     return res
 }
 
-async function writeSpreadSheetValue({ spreadsheetId, sheetName, cell, resource }) {
-    const res = await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        auth,
-        range: `${sheetName}!${cell}`,
-        valueInputOption: 'USER_ENTERED',
-        resource
-    })
-}
-
 module.exports = {
     getAuthToken,
     dupSheet,
+    updateSheet,
     getSpreadSheetValues,
-    writeSpreadSheetValue,
 }
 

@@ -3,8 +3,8 @@ require('dotenv').config()
 const {
     getAuthToken,
     getSpreadSheetValues,
-    writeSpreadSheetValue,
     dupSheet,
+    updateSheet
 } = require("./googleSheetsService.js")
 
 const spreadsheetId = process.env.SHEET_ID
@@ -51,6 +51,25 @@ async function dupCbSheet(newSheetName) {
     }
 }
 
+async function updateCbSheet(sheetName, cell, resource) {
+    try {
+        const auth = await getAuthToken()
+        const request = await updateSheet({
+            spreadsheetId,
+            auth,
+            sheetName,
+            cell,
+            resource,
+        })
+        console.log(request)
+    } catch (error) {
+        console.log(
+            `Error updating ${sheetName}`,
+            error.message
+        )
+    }
+}
+
 async function getValues() {
     try {
         const auth = await getAuthToken()
@@ -71,28 +90,9 @@ async function getValues() {
     }
 }
 
-async function writeValue(cell, resource) {
-    try {
-        const auth = await getAuthToken()
-        const request = await writeSpreadSheetValue({
-            spreadsheetId,
-            auth,
-            sheetName,
-            cell,
-            resource,
-        })
-        console.log(request)
-    } catch (error) {
-        console.log(
-            `Error updating ${sheetName}`,
-            error.message
-        )
-    }
-}
-
 module.exports = {
     getA1Notation,
     getValues,
-    writeValue,
     dupCbSheet,
+    updateCbSheet
 }
