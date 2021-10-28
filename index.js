@@ -3,8 +3,8 @@ require('dotenv').config()
 const fs = require('fs')
 const { Client, Intents } = require('discord.js')
 const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.js'))
-const { getClanBattleData } = require('./discordFuncs')
-const { getA1Notation, getValues, writeValue, dupCbSheet } = require('./googleSheetsFuncs')
+const { getClanBattleData, getIngameScore } = require('./discordFuncs')
+const { getA1Notation, getValues, dupCbSheet, updateCbSheet } = require('./googleSheetsFuncs')
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
 
@@ -21,39 +21,59 @@ async function main() {
                 if (event.name === 'messageCreate') {
                     args.forEach((message) => {
                         try {
-                            if (message.channel.name === 'attack-channel' && message.member.user.tag === 'Rayy#9837' && message.content.includes('CB')) {
+                            if (message.channel.name === 'attack-channel' && message.member.user.tag === 'Rayy#9837' && message.content.startsWith('CB')) {
                                 dupCbSheet(message.content)
                                 message.reply(`${message.content} Sheet created!`)
-                            } else if (message.channel.name === 'attack-channel' && !message.author.bot && !(message.content.includes('CB'))) {
-                                let memberRow
+                            } else if (message.channel.name === 'attack-channel' && !message.author.bot && !(message.content.startsWith('CB'))) {
                                 let cell
+                                let values
+                                let resource
                                 const attackNumsCol = []
-                                const dayNum = getClanBattleData(message)[0]
-                                const attackNum = getClanBattleData(message)[1]
-                                const score = getClanBattleData(message)[2]
-                                const dayNumIndex = dayNum - 1
-                                const values = [[score]]
-                                const resource = { values }
     
-                                for (let row = 0; row < sheetData.length; row++) {
-                                    for (let col = 0; col < sheetData.length; col++) {
-                                        if (sheetData[row][0].includes(message.member.displayName)) {
-                                            memberRow = row
-                                        }
-    
-                                        if (`Attack ${attackNum}` === sheetData[row][col]) {
-                                            attackNumsCol.push(col)
+                                if (message.content.includes('ingame')) {
+                                    let memberRow
+                                    const ingameScore = getIngameScore(message)[1]
+                                    const clanBattleNum = getIngameScore(message)[2]
+                                    values = [[ingameScore]]
+                                    resource = { values }
+                                    for (let row = 0; row < sheetData.length; row++) {
+                                        for (let col = 0; col < sheetData.length; col++) {
+                                            if (sheetData[row][0].includes(message.member.displayName)) {
+                                                memberRow = row
+                                            }
                                         }
                                     }
+                                    cell = getA1Notation(memberRow, 22)
+                                    updateCbSheet(clanBattleNum, cell, resource)
+                                    message.reply(`Yatta!! ${message.member.displayName} sent an in-game score of ${ingameScore} to ${clanBattleNum}`)
+                                } else {
+                                    let memberRow
+                                    const dayNum = getClanBattleData(message)[0]
+                                    const attackNum = getClanBattleData(message)[1]
+                                    const score = getClanBattleData(message)[2]
+                                    const clanBattleNum = getClanBattleData(message)[3]
+                                    const dayNumIndex = dayNum - 1
+                                    values = [[score]]
+                                    resource = { values }
+                                    for (let row = 0; row < sheetData.length; row++) {
+                                        for (let col = 0; col < sheetData.length; col++) {
+                                            if (sheetData[row][0].includes(message.member.displayName)) {
+                                                memberRow = row
+                                            }
+        
+                                            if (`Attack ${attackNum}` === sheetData[row][col]) {
+                                                attackNumsCol.push(col)
+                                            }
+                                        }
+                                    }
+                                    cell = getA1Notation(memberRow, attackNumsCol[dayNumIndex])
+                                    updateCbSheet(clanBattleNum, cell, resource)
+                                    message.reply(`Yatta!! ${message.member.displayName} sent a score of ${score} to Day ${dayNum}, Attack ${attackNum}, ${clanBattleNum}`)
                                 }
-    
-                                cell = getA1Notation(memberRow, attackNumsCol[dayNumIndex])
-                                writeValue(cell, resource)
-                                message.reply(`Yatta!! ${message.member.displayName} sent a score of ${score} to Day ${dayNum}, Attack ${attackNum}`)
                             }
                         } catch (error) {
                             if (error) {
-                                message.reply("Yabai, there was an error with your input! Try putting it in the format 'day x, x, xxxxxx'. If this is Ray and you're making a new CB sheet try the format 'CB x'")
+                                message.reply("Yabai, there was an error with your input! Try putting it in the format 'day x, x, xxxxxx, CB x'. If this is Ray and you're making a new CB sheet try the format 'CB x'")
                                 console.log(error)
                             }
                         }
