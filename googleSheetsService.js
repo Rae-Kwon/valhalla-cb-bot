@@ -1,7 +1,10 @@
 const { google } = require('googleapis')
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-const auth = new google.auth.GoogleAuth({ scopes: SCOPES })
+const auth = new google.auth.GoogleAuth({,
+    keyFile: './google-credentials.json',
+    scopes: SCOPES 
+})
 const sheets = google.sheets('v4', auth)
 
 async function getAuthToken() {
