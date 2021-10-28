@@ -8,7 +8,7 @@
   "description": "A discord bot for writing to the CB sheet",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "export GOOGLE_APPLICATION_CREDENTIALS=./google-credentials.json && node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

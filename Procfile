@@ -1,1 +1,1 @@
-worker: node index.js
+worker: export GOOGLE_APPLICATION_CREDENTIALS=./google-credentials.json && node index.js
