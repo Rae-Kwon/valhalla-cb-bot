@@ -1,8 +1,9 @@
+const path = require('path')
 const { google } = require('googleapis')
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 const auth = new google.auth.GoogleAuth({
-    keyFile: './google-credentials.json',
+    keyFile: path.normalize('./google-credentials.json'),
     scopes: SCOPES 
 })
 const sheets = google.sheets('v4', auth)
