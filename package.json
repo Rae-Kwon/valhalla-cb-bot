@@ -1,6 +1,10 @@
 {
   "name": "valhalla-cb-bot",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.x",
+    "npm": "7.x"
+  },
   "description": "A discord bot for writing to the CB sheet",
   "main": "index.js",
   "scripts": {
