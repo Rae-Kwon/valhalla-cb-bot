@@ -12,10 +12,12 @@ const getClanBattleData = (message) => {
     if (getMessage(message).length === 4) {
         let [day, attack, score, clanBattle] = getMessage(message)
 
-        day = parseInt(day.split('day')[1])
+        let daySplit = day.toLowerCase().split('day')
+        let clanBattleSplit = clanBattle.toUpperCase().split('CB')
+        day = parseInt(daySplit[daySplit.length - 1].trim())
         attack = parseInt(attack)
         score = parseInt(score)
-        clanBattle = clanBattle.trim()
+        clanBattle = parseInt(clanBattleSplit[clanBattleSplit.length - 1].trim())
         if (day > 5 || day < 1 || attack > 3 || attack < 1) {
             throw 'The day or attack number is out of range'
         }
