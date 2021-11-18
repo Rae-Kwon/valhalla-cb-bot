@@ -18,14 +18,6 @@ async function main() {
             bot.once(event.name, (...args) => event.execute(...args))
         } else {
             bot.on(event.name, (...args) => {
-                bot.user.setPresence({ 
-                    status: 'available', 
-                    activity: {
-                        name: 'Clan Battle', 
-                        type: 'COMPETING' 
-                    }
-                })
-
                 if (event.name === 'messageCreate') {
                     args.forEach((message) => {
                         try {
