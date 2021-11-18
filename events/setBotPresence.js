@@ -2,7 +2,7 @@ module.exports = {
     name: 'setBotPresence',
     once: true,
     execute(client) {
-        bot.user.setPresence({ 
+        client.user.setPresence({ 
             status: 'available', 
             activity: {
                 name: 'Clan Battle', 
