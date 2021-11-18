@@ -2,6 +2,12 @@ module.exports = {
     name: 'setBotPresence',
     once: true,
     execute(bot) {
-        bot.user.setActivity('Clan Battle', { type: 'COMPETING' })
+        bot.user.setPresence({
+            status: 'online',
+            activities: [{
+                name: 'Clan Battle',
+                type: 5
+            }]
+        })
     },
 }
