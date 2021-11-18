@@ -1,5 +1,6 @@
 module.exports = {
     name: 'setBotPresence',
+    once: true,
     execute(client) {
         bot.user.setPresence({ 
             status: 'available', 
