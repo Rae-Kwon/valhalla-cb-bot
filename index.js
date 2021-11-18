@@ -33,7 +33,7 @@ async function main() {
                                 if (message.content.includes('ingame')) {
                                     let memberRow
                                     const ingameScore = getIngameScore(message)[1]
-                                    const clanBattleNum = getIngameScore(message)[2]
+                                    const clanBattleNum = `CB ${getIngameScore(message)[2]}`
                                     values = [[ingameScore]]
                                     resource = { values }
                                     for (let row = 0; row < sheetData.length; row++) {
@@ -45,13 +45,13 @@ async function main() {
                                     }
                                     cell = getA1Notation(memberRow, 22)
                                     updateCbSheet(clanBattleNum, cell, resource)
-                                    message.reply(`Yatta!! ${message.member.displayName} sent an in-game score of ${ingameScore} to ${clanBattleNum}`)
+                                    message.reply(`Yatta!! ${message.member.displayName} sent an in-game score of ${ingameScore} to CB ${clanBattleNum}`)
                                 } else {
                                     let memberRow
                                     const dayNum = getClanBattleData(message)[0]
                                     const attackNum = getClanBattleData(message)[1]
                                     const score = getClanBattleData(message)[2]
-                                    const clanBattleNum = getClanBattleData(message)[3]
+                                    const clanBattleNum = `CB ${getClanBattleData(message)[3]}`
                                     const dayNumIndex = dayNum - 1
                                     values = [[score]]
                                     resource = { values }
