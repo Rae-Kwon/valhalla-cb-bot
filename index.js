@@ -91,5 +91,9 @@ async function main() {
     }
 }
 
+bot.on('ready', () => {
+    console.log(`Ready! Logged in as ${bot.user.tag}`)
+    bot.user.setActivity('Clan Battle', { type: 'COMPETING' })
+})
 main()
 bot.login(process.env.DISCORD_TOKEN)
