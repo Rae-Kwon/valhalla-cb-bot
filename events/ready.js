@@ -8,7 +8,7 @@ module.exports = {
                 name: 'Clan Battle', 
                 type: 'COMPETING' 
             }
-        })
+        }),
         console.log(`Ready! Logged in as ${client.user.tag}`)
     },
 }
