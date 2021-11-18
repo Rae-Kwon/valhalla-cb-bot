@@ -6,7 +6,7 @@ const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.j
 const { getClanBattleData, getIngameScore } = require('./discordFuncs')
 const { getA1Notation, getValues, dupCbSheet, updateCbSheet } = require('./googleSheetsFuncs')
 
-const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
+const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_PRESENCES] })
 
 async function main() {
     const spreadSheet = await getValues()
