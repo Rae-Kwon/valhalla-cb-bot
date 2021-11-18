@@ -87,3 +87,4 @@ async function main() {
 
 main()
 client.login(process.env.DISCORD_TOKEN)
+client.user.setPresence({ activities:[{ name: 'in Clan Battle', type: 'COMPETING' }], status: 'available' })
