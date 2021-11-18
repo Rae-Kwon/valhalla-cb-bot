@@ -6,7 +6,7 @@ const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.j
 const { getClanBattleData, getIngameScore } = require('./discordFuncs')
 const { getA1Notation, getValues, dupCbSheet, updateCbSheet } = require('./googleSheetsFuncs')
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
+const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
 
 async function main() {
     const spreadSheet = await getValues()
@@ -15,9 +15,9 @@ async function main() {
     for (const file of eventFiles) {
         const event = require(`./events/${file}`)
         if (event.once) {
-            client.once(event.name, (...args) => event.execute(...args))
+            bot.once(event.name, (...args) => event.execute(...args))
         } else {
-            client.on(event.name, (...args) => {
+            bot.on(event.name, (...args) => {
                 if (event.name === 'messageCreate') {
                     args.forEach((message) => {
                         try {
@@ -86,5 +86,5 @@ async function main() {
 }
 
 main()
-client.login(process.env.DISCORD_TOKEN)
-client.user.setPresence({ activities:[{ name: 'in Clan Battle', type: 'COMPETING' }], status: 'available' })
+bot.login(process.env.DISCORD_TOKEN)
+bot.user.setPresence({ activities:[{ name: 'in Clan Battle', type: 'COMPETING' }], status: 'available' })
