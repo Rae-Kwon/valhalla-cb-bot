@@ -51,7 +51,7 @@ async function main() {
                                     }
                                     cell = getA1Notation(memberRow, 22)
                                     updateCbSheet(clanBattleNum, cell, resource)
-                                    message.reply(`Yatta!! ${message.member.displayName} sent an in-game score of ${ingameScore} to CB ${clanBattleNum}`)
+                                    message.reply(`Yatta!! ${message.member.displayName} sent an in-game score of ${ingameScore} to ${clanBattleNum}`)
                                 } else {
                                     let memberRow
                                     const dayNum = getClanBattleData(message)[0]

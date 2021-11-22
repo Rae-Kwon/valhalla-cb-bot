@@ -29,8 +29,9 @@ const getClanBattleData = (message) => {
 const getIngameScore = (message) => {
     if (getMessage(message).length === 3) {
         let [ingame, score, clanBattle] = getMessage(message)
+        let clanBattleSplit = clanBattle.toUpperCase().split('CB')
 
-        clanBattle = clanBattle.trim()
+        clanBattle = parseInt(clanBattleSplit[clanBattleSplit.length - 1].trim())
 
         return [ingame, score, clanBattle]
     }
