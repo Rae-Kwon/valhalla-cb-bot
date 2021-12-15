@@ -27,7 +27,7 @@ async function main() {
                 if (event.name === 'messageCreate') {
                     args.forEach((message) => {
                         try {
-                            if (message.channel.name === 'attack-channel' && message.member.user.tag === 'Rayy#9837' && message.content.startsWith('CB')) {
+                            if (message.channel.name === 'attack-channel' && message.member.user.tag === 'MachuPichu#3535' && message.content.startsWith('CB')) {
                                 dupCbSheet(message.content)
                                 message.reply(`${message.content} Sheet created!`)
                             } else if (message.channel.name === 'attack-channel' && !message.author.bot && !(message.content.startsWith('CB'))) {
