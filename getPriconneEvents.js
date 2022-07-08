@@ -1,7 +1,10 @@
 const puppeteer = require('puppeteer')
 
 const getEvents = async () => {
-    const browser = await puppeteer.launch()
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox','--disable-setuid-sandbox']
+    })
     const page = await browser.newPage()
     await page.goto('https://got.cr/priconne-update')
     const events = await page.evaluate(() => {
