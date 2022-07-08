@@ -17,6 +17,7 @@ async function dupSheet({ spreadsheetId, auth, resource }) {
         resource,
         auth
     })
+    return req
 }
 
 async function updateSheet({ spreadsheetId, sheetName, cell, resource }) {
@@ -27,6 +28,7 @@ async function updateSheet({ spreadsheetId, sheetName, cell, resource }) {
         valueInputOption: 'USER_ENTERED',
         resource
     })
+    return req
 }
 
 async function getSpreadSheetValues({ spreadsheetId, sheetName }) {

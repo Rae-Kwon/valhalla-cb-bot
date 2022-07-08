@@ -46,6 +46,7 @@ async function dupCbSheet(newSheetName) {
             },
             auth,
         })
+        return request
     } catch (error) {
         console.log("Error duplicating sheet")
     }
@@ -61,7 +62,7 @@ async function updateCbSheet(sheetName, cell, resource) {
             cell,
             resource,
         })
-        console.log(request)
+        console.log(request.data.updatedRange, request.status, request.statusText)
     } catch (error) {
         console.log(
             `Error updating ${sheetName}`,
@@ -70,7 +71,7 @@ async function updateCbSheet(sheetName, cell, resource) {
     }
 }
 
-async function getValues() {
+async function getValues(sheetName) {
     try {
         const auth = await getAuthToken()
         const response = await getSpreadSheetValues({
