@@ -152,13 +152,13 @@ bot.on('ready', () => {
     console.log(`Ready! Logged in as ${bot.user.tag}`)
     bot.user.setActivity('Clan Battle', { type: 'COMPETING' })
 
-    const scheduledMessage = new cron.CronJob('0 * * * *', () => {
+    const scheduledMessage = new cron.CronJob('0 * * * *', async () => {
         console.log('Scheduled job runnning')
         const guild = bot.guilds.cache.get('814520809765994517')
         const channel = guild.channels.cache.get('900250215976697858')
         const mentionRole = roleMention('872114916352458822')
         const currentDateTime = new Date()
-        const eventsData = getEvents()
+        const eventsData = await getEvents()
 
         eventsData.forEach((data) => {
             const checkStartTime = data.eventStart.getTime() - currentDateTime.getTime()
