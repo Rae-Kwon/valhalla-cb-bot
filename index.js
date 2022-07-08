@@ -107,7 +107,7 @@ bot.on('interactionCreate', async interaction => {
 })
 
 bot.on('interactionCreate', async interaction => {
-    if (!interaction.isModalSubmit())
+    if (!interaction.isModalSubmit()) return
     if (interaction.customId === 'registerCbIngameScore') {
         let cell
         let values
@@ -131,6 +131,7 @@ bot.on('interactionCreate', async interaction => {
         }
         cell = getA1Notation(memberRow, 22)
         updateCbSheet(clanBattleNum, cell, resource)
+
         await interaction.reply(`Yatta!! ${interaction.member.nickname || interaction.member.user.username} sent an in-game score of ${ingameScore} to ${clanBattleNum}`)
     }
 })
