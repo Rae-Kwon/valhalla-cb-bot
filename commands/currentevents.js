@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders')
-const { MessageEmbed } = require('discord.js')
-const { getEvents } = require('../getPriconneEvents')
+const { getEvents } = require('../webScrapeJobs')
 const { convertMsToTime } = require('../utilities')
 
 module.exports = {
@@ -9,7 +8,7 @@ module.exports = {
         .setDescription('Lets you know what events are happening in Princess Connect'),
     async execute(interaction) {
         if (interaction.commandName === 'currentevents') {
-            await interaction.deferReply()
+            await interaction.deferReply({ ephemeral: true })
             const currentDateTime = new Date()
             const eventData = await getEvents()
             const dateTimeOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }

@@ -2,11 +2,11 @@ require('dotenv').config()
 
 const fs = require('fs')
 const { Client, Collection } = require('discord.js')
-const cron = require('cron')
-const { getA1Notation, getValues, dupCbSheet, updateCbSheet } = require('./googleSheetsFuncs')
-const { getEvents } = require('./getPriconneEvents')
-const { convertHoursToMs } = require('./utilities')
-const { roleMention } = require('@discordjs/builders')
+const db = require('./serverFunctions/database')
+const settingsSchema = require('./schema/settingsSchema')
+const { cacheData } = require('./serverFunctions/cacheData')
+
+const localCache = {}
 
 const bot = new Client({ 
     intents: [
@@ -16,6 +16,7 @@ const bot = new Client({
     ] 
 })
 
+// Initialize bot for commands
 bot.commands = new Collection()
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 
@@ -32,111 +33,43 @@ bot.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
+        if (interaction.commandName !== "setup") {
+            await cacheData(interaction.guildId, localCache)
+        }
+
         if (command.execute) {
-            await command.execute(interaction)
+            const channelId = localCache[interaction.guildId][1]
+            const eventChannel = bot.channels.cache.get(channelId)
+            await command.execute(interaction, eventChannel)
         }
     } catch (error) {
-        console.error(error)
-        await interaction.reply({ content: 'There was an error executing this command', ephemeral: true })
+        console.error('Catch error', error)
+        await interaction.reply({ content: `Yabai!! There was an error! This is what went wrong: ${error.message}`, ephemeral: true })
     }
 })
 
-bot.on('interactionCreate', async interaction => {
-    if (!interaction.isModalSubmit()) return
-    if (interaction.customId === 'createCbSheet') {
-        const membersCbRole = await interaction.guild.roles.fetch('872114916352458822')
-        const nonBotMembers = membersCbRole.members.filter((member) => !member.user.bot)
-        const members = nonBotMembers.map((member) => member.nickname ? member.nickname : member.user.username)
-        members.sort((a, b) => a.localeCompare(b))
-        const cbSheetNum = interaction.fields.getTextInputValue('cbSheetInput')
-        const sheetName = `CB ${cbSheetNum}`
-        const createNewSheet = await dupCbSheet(sheetName)
+// Initialize bot for modal submits
+const modalSubmitFiles = fs.readdirSync('./modalSubmits').filter(file => file.endsWith('js'))
 
-        if (createNewSheet.status === 200) {
-            for (let row = 0; row < members.length; row++) {
-                // row + 2 to skip the first 2 header cells
-                const cell = getA1Notation(row + 2, 0)
-                const values = [[members[row]]]
-                const resource = { values }
-                updateCbSheet(sheetName, cell, resource)
+for (const file of modalSubmitFiles) {
+    const modalSubmit = require(`./modalSubmits/${file}`)
+
+    bot.on('interactionCreate', async interaction => {
+        if (!interaction.isModalSubmit()) return
+        if (interaction.customId === modalSubmit.name) {
+            try {
+                const channelId = localCache[interaction.guildId][0]
+                const attackChannel = bot.channels.cache.get(channelId)
+                await modalSubmit.onSubmit(interaction, attackChannel)
+            } catch (error) {
+                console.error(error)
+                await interaction.reply({ content: `Yabai!! There was an error! This is what went wrong: ${error.message}`, ephemeral: true })
             }
         }
+    })
+}
 
-        await interaction.reply({ content: `Yatta!! ${sheetName} created!` })
-    }
-})
-
-
-bot.on('interactionCreate', async interaction => {
-    if (!interaction.isModalSubmit()) return;
-    if (interaction.customId === 'registerCbAttack') {
-        const dayNum = interaction.fields.getTextInputValue('dayInput')
-        const attackNum = interaction.fields.getTextInputValue('attackInput')
-        const score = interaction.fields.getTextInputValue('scoreInput')
-        const cbNum = interaction.fields.getTextInputValue('cbNumInput')
-
-        const clanBattleNum = `CB ${cbNum}`
-        const spreadSheet = await getValues(clanBattleNum)
-        const sheetData = spreadSheet.values
-
-        let cell
-        let values
-        let resource
-        const attackNumsCol = []
-
-        let memberRow
-        const dayNumIndex = dayNum - 1
-        values = [[score]]
-        resource = { values }
-        for (let row = 0; row < sheetData.length; row++) {
-            for (let col = 0; col < sheetData.length; col++) {
-                if (sheetData[row][0].includes(interaction.member.nickname || interaction.member.user.username)) {
-                    memberRow = row
-                }
-
-                if (`Attack ${attackNum}` === sheetData[row][col]) {
-                    attackNumsCol.push(col)
-                }
-            }
-        }
-        cell = getA1Notation(memberRow, attackNumsCol[dayNumIndex])
-        updateCbSheet(clanBattleNum, cell, resource)
-
-        await interaction.reply({ content: `Yatta!! ${interaction.member.nickname || interaction.member.user.username} sent a score of ${score} to Day ${dayNum}, Attack ${attackNum}, ${clanBattleNum}` })
-    }
-})
-
-bot.on('interactionCreate', async interaction => {
-    if (!interaction.isModalSubmit()) return
-    if (interaction.customId === 'registerCbIngameScore') {
-        let cell
-        let values
-        let resource
-        let memberRow
-        const ingameScore = interaction.fields.getTextInputValue('ingameScoreInput')
-        const cbNum = interaction.fields.getTextInputValue('cbNumInput')
-    
-        const clanBattleNum = `CB ${cbNum}`
-        const spreadSheet = await getValues(clanBattleNum)
-        const sheetData = spreadSheet.values
-
-        values = [[ingameScore]]
-        resource = { values }
-        for (let row = 0; row < sheetData.length; row++) {
-            for (let col = 0; col < sheetData.length; col++) {
-                if (sheetData[row][0].includes(interaction.member.nickname || interaction.member.user.username)) {
-                    memberRow = row
-                }
-            }
-        }
-        cell = getA1Notation(memberRow, 22)
-        updateCbSheet(clanBattleNum, cell, resource)
-
-        await interaction.reply(`Yatta!! ${interaction.member.nickname || interaction.member.user.username} sent an in-game score of ${ingameScore} to ${clanBattleNum}`)
-    }
-})
-
-
+// Initialize bot for events
 const eventFiles = fs.readdirSync('./events').filter((file) => file.endsWith('.js'))
 
 for (const file of eventFiles) {
@@ -148,50 +81,64 @@ for (const file of eventFiles) {
 	}
 }
 
-bot.on('ready', () => {
+bot.on('ready', async () => {
     console.log(`Ready! Logged in as ${bot.user.tag}`)
     bot.user.setActivity('Clan Battle', { type: 'COMPETING' })
-
-    const scheduledMessage = new cron.CronJob('0 * * * *', async () => {
-        console.log('Scheduled job runnning')
-        const guild = bot.guilds.cache.get('814520809765994517')
-        const channel = guild.channels.cache.get('900250215976697858')
-        const mentionRole = roleMention('872114916352458822')
-        const currentDateTime = new Date()
-        const eventsData = await getEvents()
-
-        eventsData.forEach((data) => {
-            const checkStartTime = data.eventStart.getTime() - currentDateTime.getTime()
-            const checkEndTime =  data.eventEnd.getTime() - currentDateTime.getTime()
-            if (checkStartTime < convertHoursToMs(48) && checkStartTime > convertHoursToMs(47)) {
-                channel.send(`${mentionRole} ${data.eventName} starts in less than 48 hours!!!`)
-            }
-
-            if (checkStartTime < convertHoursToMs(24) && checkStartTime > convertHoursToMs(23)) {
-                channel.send(`${mentionRole} ${data.eventName} starts in less than 24 hours!!!`)
-            }
-
-            if (checkStartTime < convertHoursToMs(0) && checkStartTime > convertHoursToMs(-1)) {
-                channel.send(`${mentionRole} ${data.eventName} has started!!!`)
-            }
-
-            if (checkEndTime < convertHoursToMs(48) && checkEndTime > convertHoursToMs(47)) {
-                channel.send(`${mentionRole} ${data.eventName} ends in less than 48 hours!!!`)
-            }
-
-            if (checkEndTime < convertHoursToMs(24) && checkEndTime > convertHoursToMs(23)) {
-                channel.send(`${mentionRole} ${data.eventName} ends in less than 24 hours!!!`)
-            }
-
-            if (checkEndTime < convertHoursToMs(0) && checkEndTime > convertHoursToMs(-1)) {
-                channel.send(`${mentionRole} ${data.eventName} has ended!!!`)
-            }
-        })
-    })
-
-    scheduledMessage.start()
 })
 
+bot.on('interactionCreate', async interaction => {
+    if (!interaction.isSelectMenu()) return
+    if (interaction.customId === 'selectAttackLogCategory') {
+        await interaction.deferReply()
+        const selectedCategoryId = interaction.values[0]
+        const createChannel = interaction.guild.channels.create('attack-channel', {
+            type: 'GUILD_TEXT',
+            parent: selectedCategoryId
+        })
 
+        const categoryName = bot.channels.cache.get(selectedCategoryId).name
+        const channelData = await createChannel
+        
+        const connectDb = await db()
+        try {
+            await settingsSchema.findOneAndUpdate({
+                _id: interaction.guildId
+            }, {
+                _id: interaction.guildId,
+                priconneLogChannelId: channelData.id
+            }, { upsert: true })
+        } finally {
+            connectDb.connection.close()
+        }
+
+        await interaction.editReply({ content: `${channelData.name} created in the ${categoryName} category!` })
+    }
+
+    if (interaction.customId === 'selectEventAnnouncementCategory') {
+        await interaction.deferReply()
+        const selectedCategoryId = interaction.values[0]
+        const createChannel = interaction.guild.channels.create('event-announcements', {
+            type: 'GUILD_TEXT',
+            parent: selectedCategoryId
+        })
+
+        const categoryName = bot.channels.cache.get(selectedCategoryId).name
+        const channelData = await createChannel
+        
+        const connectDb = await db()
+        try {
+            await settingsSchema.findOneAndUpdate({
+                _id: interaction.guildId
+            }, {
+                _id: interaction.guildId,
+                eventAnnounceChannelId: channelData.id
+            }, { upsert: true })
+        } finally {
+            connectDb.connection.close()
+        }
+
+        await interaction.editReply({ content: `${channelData.name} created in the ${categoryName} category!` })
+    }
+})
 
 bot.login(process.env.DISCORD_TOKEN)

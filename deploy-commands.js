@@ -17,8 +17,7 @@ const rest = new REST({ version: '9' }).setToken(process.env.DISCORD_TOKEN)
 const updateCommands = async () => {
     try {
         console.log('Successfully registered commands')
-        const update = await rest.put(Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, process.env.DISCORD_GUILD_ID), { body: commands })
-        console.log(update, commands)
+        const update = await rest.put(Routes.applicationCommands(process.env.DISCORD_CLIENT_ID), { body: commands })
         return update
     } catch (error) {
         console.error(error)

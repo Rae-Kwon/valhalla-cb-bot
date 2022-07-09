@@ -1,6 +1,4 @@
-const padTo2Digits = (num) => {
-  return num.toString().padStart(2, '0');
-}
+const { padTo2Digits } = require('./padTo2Digits')
 
 const convertMsToTime = (milliseconds) => {
     let seconds = Math.floor(milliseconds / 1000)
@@ -17,9 +15,4 @@ const convertMsToTime = (milliseconds) => {
     )}`
 }
 
-const convertHoursToMs = (hours) => {
-    const msIn1Hour = 3600000
-    return hours * msIn1Hour
-}
-
-module.exports = { convertMsToTime, convertHoursToMs }
+module.exports = { convertMsToTime }

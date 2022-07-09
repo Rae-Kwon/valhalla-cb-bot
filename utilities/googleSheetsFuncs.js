@@ -48,7 +48,7 @@ async function dupCbSheet(newSheetName) {
         })
         return request
     } catch (error) {
-        console.log("Error duplicating sheet")
+        throw new Error(error.message)
     }
 }
 
@@ -62,12 +62,9 @@ async function updateCbSheet(sheetName, cell, resource) {
             cell,
             resource,
         })
-        console.log(request.data.updatedRange, request.status, request.statusText)
+        return { updatedRange: request.data.updatedRange, status: request.status, statusText:request.statusText }
     } catch (error) {
-        console.log(
-            `Error updating ${sheetName}`,
-            error.message
-        )
+        throw new Error(error.message)
     }
 }
 
@@ -84,10 +81,7 @@ async function getValues(sheetName) {
         )
         return sheetData
     } catch (error) {
-        console.log(
-            `Error getting ${sheetName}`,
-            error.message
-        )
+        throw new Error(error.message)
     }
 }
 
