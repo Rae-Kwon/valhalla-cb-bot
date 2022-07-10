@@ -1,7 +1,9 @@
+const { Permissions } = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders')
 const { PermissionFlagsBits } = require('discord-api-types/v10')
 const { createSelectMenu } = require('../components/selectMenu')
 const { notifyEventStartEnd } = require('../scheduledJobs')
+const { getChannelRole } = require('../scheduledJobs/notifyEventStartEnd')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,9 +12,6 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
     async execute(interaction, channel) {
         if (interaction.commandName === "announceevents") {
-            // const roles = interaction.guild.channels.cache.filter(channel => channel.type === "GUILD_CATEGORY")
-
-            // const rolesInfo = roles.map((category) => ({ label: category.name, description: `${category.name} category`, value: category.id }))
             const roles = await interaction.guild.roles.fetch()
 
             const priconneRoles = roles.filter((role) => role.name.toLowerCase().includes('priconne' || 'princess connect' || 'clan'))
@@ -34,8 +33,8 @@ module.exports = {
             const selectedRole = selectedRoles.values[0]
             const selectedRoleObj = await interaction.guild.roles.fetch(selectedRole)
 
-            notifyEventStartEnd.start(channel, selectedRole)
-console.log(selectedRoleObj)
+            notifyEventStartEnd(channel, selectedRole).start()
+
             await interaction.followUp({ content: `I'll let the ${selectedRoleObj.name} role know when an event is about to start or end now!` })
         }
     }

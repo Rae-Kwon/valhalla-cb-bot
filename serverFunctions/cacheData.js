@@ -16,7 +16,7 @@ const cacheData = async (guildId, cache) => {
         }
     }
 
-    console.log(data)
+    return data
 }
 
 module.exports = { cacheData }
