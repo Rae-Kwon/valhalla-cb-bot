@@ -1,7 +1,7 @@
 const db = require('./database')
 const settingsSchema = require('../schema/settingsSchema')
 
-const cacheData = async (guildId, cache) => {
+const cacheData = async (guildId, cache, commandName) => {
     let data = cache[guildId]
 
     if (!data) {
@@ -10,7 +10,7 @@ const cacheData = async (guildId, cache) => {
         try {
             const res = await settingsSchema.findOne({ _id: guildId })
 
-            cache[guildId] = data = [res.priconneLogChannelId, res.eventAnnounceChannelId]
+            cache[guildId] = data = {priconneLogChannelId: res.priconneLogChannelId, eventAnnounceChannelId: res.eventAnnounceChannelId}
         } finally {
             connectDb.connection.close()
         }

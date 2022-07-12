@@ -1,9 +1,7 @@
 require('dotenv').config()
 
 const fs = require('fs')
-const { Client, Collection } = require('discord.js')
-const db = require('./serverFunctions/database')
-const settingsSchema = require('./schema/settingsSchema')
+const { Client, Collection, Permissions } = require('discord.js')
 const { cacheData } = require('./serverFunctions/cacheData')
 
 const localCache = {}
@@ -33,18 +31,14 @@ bot.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
-        if (interaction.commandName !== "setup") {
-            await cacheData(interaction.guildId, localCache)
-        }
-
         if (command.execute) {
-            const channelId = localCache[interaction.guildId][1]
+            await cacheData(interaction.guildId, localCache)
+            const channelId = localCache[interaction.guildId].eventAnnounceChannelId
             const eventChannel = bot.channels.cache.get(channelId)
-            await command.execute(interaction, eventChannel)
+            await command.execute(interaction, eventChannel, localCache)
         }
     } catch (error) {
         console.error('Catch error', error)
-        await interaction.reply({ content: `Yabai!! There was an error! This is what went wrong: ${error.message}`, ephemeral: true })
     }
 })
 
@@ -56,15 +50,32 @@ for (const file of modalSubmitFiles) {
 
     bot.on('interactionCreate', async interaction => {
         if (!interaction.isModalSubmit()) return
-        if (interaction.customId === modalSubmit.name) {
-            try {
-                const channelId = localCache[interaction.guildId][0]
+        try {
+            if (interaction.customId === modalSubmit.name && modalSubmit.onSubmit) {
+                const channelId = localCache[interaction.guildId].priconneLogChannelId
                 const attackChannel = bot.channels.cache.get(channelId)
-                await modalSubmit.onSubmit(interaction, attackChannel)
-            } catch (error) {
-                console.error(error)
-                await interaction.reply({ content: `Yabai!! There was an error! This is what went wrong: ${error.message}`, ephemeral: true })
+                const hasAttackChannelPermission = interaction.guild.me.permissionsIn(attackChannel).has(Permissions.FLAGS.VIEW_CHANNEL)
+                await modalSubmit.onSubmit(interaction, attackChannel, hasAttackChannelPermission, bot)
             }
+        } catch (error) {
+            console.error(error)
+        }
+    })
+}
+
+// Initialize bot for select menu submits
+const selectMenuFiles = fs.readdirSync('./selectMenu').filter((file) => file.endsWith('.js'))
+
+for (const file of selectMenuFiles) {
+    const selectMenu = require(`./selectMenu/${file}`)
+    bot.on('interactionCreate', async interaction => {
+        if (!interaction.isSelectMenu()) return
+        try {
+            if (interaction.customId === selectMenu.name && selectMenu.onSelect) {
+                await selectMenu.onSelect(interaction, bot, localCache)
+            }
+        } catch (error) {
+            console.error(error)
         }
     })
 }
@@ -84,61 +95,6 @@ for (const file of eventFiles) {
 bot.on('ready', async () => {
     console.log(`Ready! Logged in as ${bot.user.tag}`)
     bot.user.setActivity('Clan Battle', { type: 'COMPETING' })
-})
-
-bot.on('interactionCreate', async interaction => {
-    if (!interaction.isSelectMenu()) return
-    if (interaction.customId === 'selectAttackLogCategory') {
-        await interaction.deferReply()
-        const selectedCategoryId = interaction.values[0]
-        const createChannel = interaction.guild.channels.create('attack-channel', {
-            type: 'GUILD_TEXT',
-            parent: selectedCategoryId
-        })
-
-        const categoryName = bot.channels.cache.get(selectedCategoryId).name
-        const channelData = await createChannel
-        
-        const connectDb = await db()
-        try {
-            await settingsSchema.findOneAndUpdate({
-                _id: interaction.guildId
-            }, {
-                _id: interaction.guildId,
-                priconneLogChannelId: channelData.id
-            }, { upsert: true })
-        } finally {
-            connectDb.connection.close()
-        }
-
-        await interaction.editReply({ content: `${channelData.name} created in the ${categoryName} category!` })
-    }
-
-    if (interaction.customId === 'selectEventAnnouncementCategory') {
-        await interaction.deferReply()
-        const selectedCategoryId = interaction.values[0]
-        const createChannel = interaction.guild.channels.create('event-announcements', {
-            type: 'GUILD_TEXT',
-            parent: selectedCategoryId
-        })
-
-        const categoryName = bot.channels.cache.get(selectedCategoryId).name
-        const channelData = await createChannel
-        
-        const connectDb = await db()
-        try {
-            await settingsSchema.findOneAndUpdate({
-                _id: interaction.guildId
-            }, {
-                _id: interaction.guildId,
-                eventAnnounceChannelId: channelData.id
-            }, { upsert: true })
-        } finally {
-            connectDb.connection.close()
-        }
-
-        await interaction.editReply({ content: `${channelData.name} created in the ${categoryName} category!` })
-    }
 })
 
 bot.login(process.env.DISCORD_TOKEN)

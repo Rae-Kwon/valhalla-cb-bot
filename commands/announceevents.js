@@ -1,9 +1,7 @@
-const { Permissions } = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders')
 const { PermissionFlagsBits } = require('discord-api-types/v10')
 const { createSelectMenu } = require('../components/selectMenu')
 const { notifyEventStartEnd } = require('../scheduledJobs')
-const { getChannelRole } = require('../scheduledJobs/notifyEventStartEnd')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -24,7 +22,11 @@ module.exports = {
 
             const selectedRoles = await interaction.channel.awaitMessageComponent({
                 componentType: 'SELECT_MENU',
-                filter: i => i.user.id === interaction.user.id
+                filter: i => {
+                    i.deferUpdate()
+                    return i.user.id === interaction.user.id
+                },
+                time: 60000
             }).catch(error => {
                 console.error(error)
                 return null

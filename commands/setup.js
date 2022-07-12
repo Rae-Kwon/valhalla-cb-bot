@@ -10,7 +10,7 @@ module.exports = {
         .setName('setup')
         .setDescription('Intial setup for Val-chan!')
         .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
-    async execute(interaction) {
+    async execute(interaction, _, cache) {
         if (interaction.commandName === 'setup') {
             let attackChannelId
             let eventChannelId
@@ -61,23 +61,28 @@ module.exports = {
                         eventAnnounceChannelId: eventChannelId
                     }, { upsert: true })
                 } finally {
+                    cache[interaction.guildId] = {priconneLogChannelId: attackChannelId, eventAnnounceChannelId: eventChannelId}
                     connectDb.connection.close()
                 }
 
-                await submitted.reply({ content: `Attack channel ID: ${attackChannelId} | Event channel ID: ${eventChannelId} submitted` })
+                const message = await submitted.reply({ content: `Attack channel ID: ${attackChannelId === "" ? "None" : attackChannelId} | Event channel ID: ${eventChannelId === "" ? "None" : eventChannelId} submitted` })
+
+                if (attackChannelId === "") {
+                    const selectAttackLogCategory = createSelectMenu('selectAttackLogCategory', 'Select Your Channel Category to create the attack log channel in', categoriesInfo)
+
+                    await interaction.followUp({ content: 'Select a category to create the attack-channel channel! (This is where all the successfully logged attacks go!)', components: [selectAttackLogCategory] })
+                }
+
+                if (eventChannelId === "") {
+                    const selectEventAnnouncementCategory = createSelectMenu('selectEventAnnouncementCategory', 'Select Your Channel Category to create the event announcement channel in', categoriesInfo)
+
+                    await interaction.followUp({ content: 'Select a category to create the event-announcement channel! (This is where all the event announcements go!)', components: [selectEventAnnouncementCategory] })
+                }
+
+                return message
             }
 
-            if (attackChannelId === "") {
-                const selectAttackLogCategory = createSelectMenu('selectAttackLogCategory', 'Select Your Channel Category to create the attack log channel in', categoriesInfo)
-
-                await interaction.followUp({ content: 'Select a category to create the attack-channel channel! (This is where all the successfully logged attacks go!)', components: [selectAttackLogCategory] })
-            }
-
-            if (eventChannelId === "") {
-                const selectEventAnnouncementCategory = createSelectMenu('selectEventAnnouncementCategory', 'Select Your Channel Category to create the event announcement channel in', categoriesInfo)
-
-                await interaction.followUp({ content: 'Select a category to create the event-announcement channel! (This is where all the event announcements go!)', components: [selectEventAnnouncementCategory] })
-            }
+            return null
         }
     }
 }

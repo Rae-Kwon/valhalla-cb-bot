@@ -65,6 +65,7 @@ async function updateCbSheet(sheetName, cell, resource) {
         return { updatedRange: request.data.updatedRange, status: request.status, statusText:request.statusText }
     } catch (error) {
         throw new Error(error.message)
+
     }
 }
 
