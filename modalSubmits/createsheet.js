@@ -2,7 +2,7 @@ const { getA1Notation, dupCbSheet, updateCbSheet } = require('../utilities')
 
 module.exports = {
   name: 'createCbSheet',
-  async onSubmit(interaction, channel, channelPermissions, bot) {
+  async onSubmit(interaction, channel, channelPermission, bot) {
     await interaction.deferReply()
     const membersCbRole = await interaction.guild.roles.fetch(
       '872114916352458822'

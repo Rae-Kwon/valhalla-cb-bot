@@ -2,7 +2,7 @@ const { getA1Notation, getValues, updateCbSheet } = require('../utilities')
 
 module.exports = {
   name: 'registerCbIngameScore',
-  async onSubmit(interaction, channel, channelPermissions, bot) {
+  async onSubmit(interaction, channel, channelPermission, bot) {
     await interaction.deferReply()
     let cell
     let values
