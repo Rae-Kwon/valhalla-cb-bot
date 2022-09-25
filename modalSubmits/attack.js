@@ -28,7 +28,8 @@ module.exports = {
           if (
             sheetData[row][0].includes(
               interaction.member.nickname || interaction.member.user.username
-            )
+            ) &&
+            sheetData[row][0] !== undefined
           ) {
             memberRow = row
           }
@@ -41,27 +42,11 @@ module.exports = {
       cell = getA1Notation(memberRow, attackNumsCol[dayNumIndex])
       const updateSheet = await updateCbSheet(clanBattleNum, cell, resource)
 
-      if (updateSheet.status === 200) {
+      if (updateSheet.status === 200 && channelPermission) {
         await interaction.editReply({
           content: `Yatta!! You sent a score of ${score} to Day ${dayNum}, Attack ${attackNum}, ${clanBattleNum} to the ${channel} channel`,
           ephemeral: true,
         })
-
-        if (channelPermission) {
-          await channel.send({
-            content: `Yatta!! ${
-              interaction.member.nickname || interaction.member.user.username
-            } sent a score of ${score} to Day ${dayNum}, Attack ${attackNum}, ${clanBattleNum}`,
-          })
-        } else {
-          channel.permissionOverwrites.edit(bot.user.id, { VIEW_CHANNEL: true })
-
-          await channel.send({
-            content: `Yatta!! ${
-              interaction.member.nickname || interaction.member.user.username
-            } sent a score of ${score} to Day ${dayNum}, Attack ${attackNum}, ${clanBattleNum}`,
-          })
-        }
       }
       return updateSheet
     } catch (error) {

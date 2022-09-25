@@ -35,22 +35,6 @@ module.exports = {
           } created sheet ${sheetName}!`,
           ephemeral: true,
         })
-
-        if (channelPermission) {
-          await channel.send({
-            content: `Yatta!! ${
-              interaction.member.nickname || interaction.member.user.username
-            } created sheet ${sheetName}!`,
-          })
-        } else {
-          channel.permissionOverwrites.edit(bot.user.id, { VIEW_CHANNEL: true })
-
-          await channel.send({
-            content: `Yatta!! ${
-              interaction.member.nickname || interaction.member.user.username
-            } created sheet ${sheetName}!`,
-          })
-        }
       }
       return createNewSheet
     } catch (error) {

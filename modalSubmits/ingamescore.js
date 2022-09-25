@@ -39,22 +39,6 @@ module.exports = {
           } sent an in-game score of ${ingameScore} to ${clanBattleNum}`,
           ephemeral: true,
         })
-
-        if (channelPermission) {
-          await channel.send({
-            content: `Yatta!! ${
-              interaction.member.nickname || interaction.member.user.username
-            } sent an in-game score of ${ingameScore} to ${clanBattleNum}`,
-          })
-        } else {
-          channel.permissionOverwrites.edit(bot.user.id, { VIEW_CHANNEL: true })
-
-          await channel.send({
-            content: `Yatta!! ${
-              interaction.member.nickname || interaction.member.user.username
-            } sent an in-game score of ${ingameScore} to ${clanBattleNum}`,
-          })
-        }
       }
       return updateSheet
     } catch (error) {
